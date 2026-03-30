@@ -7,7 +7,6 @@ import uuid
 import firebase_admin
 from firebase_admin import credentials, firestore
 
-# --- FIREBASE BAĞLANTISI ---
 try:
     cred = credentials.Certificate("firebase_key.json")
     firebase_admin.initialize_app(cred)
@@ -19,7 +18,6 @@ except Exception as e:
 app = FastAPI(title="BaggageMatch API")
 templates = Jinja2Templates(directory="templates")
 
-# --- VERİ MODELLERİ (Gelen verilerin kuralları) ---
 class ShipmentRequest(BaseModel):
     sender_name: str
     contact: str
@@ -33,16 +31,18 @@ class BidRequest(BaseModel):
     carrier_name: str
     carrier_contact: str
 
-# --- 1. VİTRİN: Gönderici Sayfası ---
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
-# --- 2. API: İhale Başlatma (Gönderici) ---
+# YENİ EKLENEN KISIM: Taşıyıcı Vitrinini Açan Kod
+@app.get("/carrier", response_class=HTMLResponse)
+async def read_carrier(request: Request):
+    return templates.TemplateResponse("carrier.html", {"request": request})
+
 @app.post("/api/create_shipment")
 async def create_shipment(shipment: ShipmentRequest):
     shipment_id = str(uuid.uuid4())[:8] 
-    
     new_shipment = {
         "shipment_id": shipment_id,
         "sender_name": shipment.sender_name,
@@ -50,62 +50,44 @@ async def create_shipment(shipment: ShipmentRequest):
         "route": f"{shipment.from_city} -> {shipment.to_city}",
         "kg": shipment.kg,
         "base_price": shipment.calculated_price,
-        "current_bid": shipment.calculated_price, # İhale fiyatı buradan başlıyor
+        "current_bid": shipment.calculated_price,
         "status": "waiting_for_bids"
     }
-    
     db.collection("shipments").document(shipment_id).set(new_shipment)
-    
-    return JSONResponse(content={
-        "status": "success",
-        "message": "Provizyon alındı, ihale taşıyıcılara bildirildi!",
-        "data": new_shipment
-    })
+    return JSONResponse(content={"status": "success", "message": "Provizyon alındı, ihale taşıyıcılara bildirildi!", "data": new_shipment})
 
-# --- 3. API: Bekleyen Kargoları Listeleme (Taşıyıcı İçin) ---
 @app.get("/api/shipments")
 async def get_shipments():
     try:
-        # Sadece "teklif bekleyen" kargoları bul ve getir
         docs = db.collection("shipments").where("status", "==", "waiting_for_bids").stream()
         shipments_list = [doc.to_dict() for doc in docs]
-        
         return JSONResponse(content={"status": "success", "data": shipments_list})
     except Exception as e:
         return JSONResponse(content={"status": "error", "message": str(e)})
 
-# --- 4. API: Teklif Verme ve Fiyat Düşürme (Ters İhale) ---
 @app.post("/api/place_bid")
 async def place_bid(bid: BidRequest):
     try:
-        # Kargo dosyasını bul
         doc_ref = db.collection("shipments").document(bid.shipment_id)
         doc = doc_ref.get()
-        
         if not doc.exists:
             return JSONResponse(content={"status": "error", "message": "Kargo bulunamadı!"})
             
         shipment_data = doc.to_dict()
         current_bid = float(shipment_data.get("current_bid", 0))
         
-        # 1. Hamle: Taşıyıcının teklifini "bids" koleksiyonuna kaydet
         new_bid = {
             "shipment_id": bid.shipment_id,
             "carrier_name": bid.carrier_name,
             "carrier_contact": bid.carrier_contact,
-            "bid_amount": current_bid # O anki güncel fiyat üzerinden kabul etti
+            "bid_amount": current_bid
         }
         db.collection("bids").add(new_bid)
         
-        # 2. Hamle (TERS İHALE): Kargonun fiyatını 1 Dolar düşür!
         new_price = current_bid - 1.0
         doc_ref.update({"current_bid": new_price})
         
-        return JSONResponse(content={
-            "status": "success", 
-            "message": f"Teklif başarılı! Kargonun yeni ihale fiyatı: ${new_price}",
-            "new_price": new_price
-        })
+        return JSONResponse(content={"status": "success", "message": f"Teklif başarılı! Kargonun yeni ihale fiyatı: ${new_price}", "new_price": new_price})
     except Exception as e:
         return JSONResponse(content={"status": "error", "message": str(e)})
 
