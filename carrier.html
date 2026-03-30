@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taşıyıcı Ekranı | BaggageMatch</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans p-8">
+    <div class="max-w-3xl mx-auto">
+        <h1 class="text-3xl font-bold text-center text-blue-700 mb-8">✈️ Uçuşundaki Kargoları Bul ve Para Kazan</h1>
+        
+        <div id="shipments-container" class="space-y-4">
+            <p class="text-center text-gray-500 font-bold animate-pulse">Kargolar aranıyor...</p>
+        </div>
+    </div>
+
+    <script>
+        // Veritabanındaki kargoları çeken fonksiyon
+        async function loadShipments() {
+            const response = await fetch('/api/shipments');
+            const result = await response.json();
+            const container = document.getElementById('shipments-container');
+            container.innerHTML = '';
+
+            if (result.data.length === 0) {
+                container.innerHTML = '<p class="text-center text-gray-500">Şu an sistemde bekleyen kargo yok.</p>';
+                return;
+            }
+
+            // Gelen her kargo için ekrana bir kart çiz
+            result.data.forEach(shipment => {
+                const card = document.createElement('div');
+                card.className = "bg-white p-6 rounded-xl shadow-lg border-l-4 border-blue-500 flex justify-between items-center";
+                card.innerHTML = `
+                    <div>
+                        <p class="text-sm text-gray-500 mb-1">Rota: <span class="font-bold text-gray-800 text-lg">${shipment.route}</span></p>
+                        <p class="text-sm text-gray-500">Ağırlık: <span class="font-bold text-gray-800">${shipment.kg} KG</span></p>
+                        <p class="text-xs text-gray-400 mt-2">Gönderici: ${shipment.sender_name}</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-xs text-gray-500">Taşıma Ücreti</p>
+                        <p class="text-3xl font-black text-green-600 mb-2">$${shipment.current_bid}</p>
+                        <button onclick="placeBid('${shipment.shipment_id}')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg shadow-md transition transform hover:scale-105">
+                            Ben Taşırım!
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // İhaleye katılma ve fiyat düşürme fonksiyonu
+        async function placeBid(shipmentId) {
+            const name = prompt("Taşıyıcı Adınız nedir?");
+            const contact = prompt("İletişim bilginiz (Tel/Mail)?");
+
+            if (!name || !contact) return; // Boş bırakırsa iptal et
+
+            const payload = {
+                shipment_id: shipmentId,
+                carrier_name: name,
+                carrier_contact: contact
+            };
+
+            const response = await fetch('/api/place_bid', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            const result = await response.json();
+            if (result.status === 'success') {
+                alert("🎉 " + result.message);
+                loadShipments(); // Fiyatın 1$ düştüğünü görmek için listeyi anında yenile!
+            } else {
+                alert("Hata: " + result.message);
+            }
+        }
+
+        // Sayfa açıldığında kargoları yükle
+        window.onload = loadShipments;
+    </script>
+</body>
+</html>
