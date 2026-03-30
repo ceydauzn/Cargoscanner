@@ -1,32 +1,53 @@
 from fastapi import FastAPI, Request, Form
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
+from pydantic import BaseModel
 import uvicorn
+import uuid
 
-app = FastAPI()
+app = FastAPI(title="BaggageMatch API")
 templates = Jinja2Templates(directory="templates")
 
-# Form verilerini geçici olarak burada tutacağız (İleride bir DB'ye bağlarız)
-waitlist = []
+# İleride Firebase'e bağlanacak olan geçici veritabanımız (Memory DB)
+db_shipments = []
 
+# API için Veri Modeli (Gelen verinin doğruluğunu kontrol eder)
+class ShipmentRequest(BaseModel):
+    sender_name: str
+    from_city: str
+    to_city: str
+    kg: float
+    calculated_price: float
+
+# 1. VİTRİN: Web sayfamızı gösteren ana rota
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request, "message": ""})
+    return templates.TemplateResponse("index.html", {"request": request})
 
-@app.post("/submit", response_class=HTMLResponse)
-async def submit_form(
-    request: Request, 
-    user_type: str = Form(...), 
-    name: str = Form(...), 
-    contact: str = Form(...)
-):
-    # Gelen veriyi listeye ekliyoruz
-    waitlist.append({"type": user_type, "name": name, "contact": contact})
-    print(f"Yeni Kayıt: {user_type} - {name} - {contact}")
+# 2. API: İhaleyi Başlatan Arka Kapı (Frontend buraya veri gönderecek)
+@app.post("/api/create_shipment")
+async def create_shipment(shipment: ShipmentRequest):
+    # Yeni bir gönderi (ihale) belgesi oluşturuyoruz (Firebase mantığı)
+    new_shipment = {
+        "shipment_id": str(uuid.uuid4())[:8], # Rastgele 8 haneli ID
+        "sender_name": shipment.sender_name,
+        "route": f"{shipment.from_city} -> {shipment.to_city}",
+        "kg": shipment.kg,
+        "base_price": shipment.calculated_price, # Müşteriden çekilen provizyon
+        "current_bid": shipment.calculated_price, # İhale bu fiyattan başlıyor
+        "status": "waiting_for_bids"
+    }
     
-    success_msg = "Harika! Talebin alındı, en kısa sürede eşleşme için sana ulaşacağız."
-    return templates.TemplateResponse("index.html", {"request": request, "message": success_msg})
+    # Veritabanına (şimdilik listeye) kaydet
+    db_shipments.append(new_shipment)
+    print(f"YENİ İHALE BAŞLADI: {new_shipment}")
+    
+    # Mobil uygulamaya veya frontend'e "Başarılı" yanıtı dön
+    return JSONResponse(content={
+        "status": "success",
+        "message": "Provizyon alındı, ihale taşıyıcılara bildirildi!",
+        "data": new_shipment
+    })
 
 if __name__ == "__main__":
-    # Hugging Face Spaces için 7860 portu zorunludur
     uvicorn.run(app, host="0.0.0.0", port=7860)
