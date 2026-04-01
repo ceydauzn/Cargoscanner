@@ -8,10 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Poppins', sans-serif; background-color: #f8fafc; }
-        .form-input {
-            width: 100%; border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 0.75rem 1rem;
-            transition: all 0.3s ease; outline: none; background-color: #fdfdfd;
-        }
+        .form-input { width: 100%; border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 0.75rem 1rem; transition: all 0.3s ease; outline: none; background-color: #fdfdfd; }
         .form-input:focus { border-color: #f97316; box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1); }
         .glass-card { background: white; border-radius: 1.5rem; box-shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.05); border: 1px solid #f1f5f9; }
     </style>
@@ -37,18 +34,58 @@
         <div id="notification" class="hidden mb-6 p-4 rounded-xl text-center font-semibold text-sm transition-all"></div>
 
         <form id="shipmentForm" class="space-y-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-5 bg-slate-50 p-5 rounded-2xl border border-slate-100">
-                <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">Adınız Soyadınız</label>
-                    <input type="text" id="sender_name" class="form-input" placeholder="Örn: Ceyda Uzun" required>
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">İletişim (Tel/Mail)</label>
-                    <input type="text" id="contact" class="form-input" placeholder="Mail veya Numara" required>
+            
+            <div class="bg-orange-50 p-5 rounded-2xl border border-orange-100">
+                <label class="block text-sm font-bold text-orange-800 mb-3">1. Kargo ile birlikte siz de uçacak mısınız?</label>
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <label class="flex-1 relative flex cursor-pointer rounded-xl border bg-white p-4 shadow-sm focus:outline-none">
+                        <input type="radio" name="shipment_type" value="baggage" id="type_baggage" onchange="calculatePrice()" class="h-5 w-5 mt-1 text-orange-600 border-gray-300 focus:ring-orange-500" checked>
+                        <div class="ml-3 flex flex-col">
+                            <span class="block text-sm font-semibold text-slate-900">Evet, Ben de Uçuyorum</span>
+                            <span class="block text-xs text-slate-500">Sadece bagaj fazlası eşleştirmesi ($0)</span>
+                        </div>
+                    </label>
+                    <label class="flex-1 relative flex cursor-pointer rounded-xl border bg-white p-4 shadow-sm focus:outline-none">
+                        <input type="radio" name="shipment_type" value="cargo" id="type_cargo" onchange="calculatePrice()" class="h-5 w-5 mt-1 text-orange-600 border-gray-300 focus:ring-orange-500">
+                        <div class="ml-3 flex flex-col">
+                            <span class="block text-sm font-semibold text-slate-900">Hayır, Sadece Kargo Gidecek</span>
+                            <span class="block text-xs text-slate-500">Numune/Eşya gönderimi (+$20.00)</span>
+                        </div>
+                    </label>
                 </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">Adınız Soyadınız</label>
+                    <input type="text" id="sender_name" class="form-input" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">İletişim (Tel/Mail)</label>
+                    <input type="text" id="contact" class="form-input" required>
+                </div>
+            </div>
+
+            <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100 space-y-5">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1.5">Kargo Ağırlığı (KG)</label>
+                        <input type="number" id="kg_input" value="20" min="1" max="50" oninput="calculatePrice()" class="form-input font-bold text-lg text-slate-800" required>
+                        <span class="text-xs text-slate-400 mt-1 block">Fiyatlandırma: KG başı $1.75</span>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1.5">Boyutlar (En x Boy x Yükseklik)</label>
+                        <input type="text" id="dimensions" placeholder="Örn: 40x50x20 cm" class="form-input" required>
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">Kargo İçeriği Fotoğrafı (Güvenlik İçin)</label>
+                    <input type="file" id="photo_input" accept="image/*" class="form-input text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100 cursor-pointer">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5 relative">
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-1.5">Nereden?</label>
                     <select id="from_city" class="form-input text-slate-700 cursor-pointer">
@@ -62,71 +99,76 @@
                         <option value="MUC">🇩🇪 Münih (MUC)</option>
                     </select>
                 </div>
+                <div class="md:col-span-2 bg-blue-50 text-blue-800 text-xs p-3 rounded-lg flex items-start border border-blue-100">
+                    <svg class="w-5 h-5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <p><b>Önemli Not:</b> Taşıyıcı ile eşleşirken uçuşunuzun direkt mi yoksa aktarmalı mı olduğuna dikkat ediniz. Aktarmalı uçuşlarda bagaj son noktaya kadar sistemde kalabilir.</p>
+                </div>
             </div>
 
-            <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100 space-y-5">
-                <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-1.5 flex items-center">
-                        <svg class="w-4 h-4 mr-1.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"></path></svg>
-                        Kargo Ağırlığı (KG)
-                    </label>
-                    <input type="number" id="kg_input" value="20" min="1" max="50" oninput="calculatePrice()" class="form-input font-bold text-lg text-slate-800" required>
-                </div>
-
+            <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100 space-y-4">
                 <div class="flex items-center bg-white p-3 rounded-xl border border-slate-200">
-                    <input type="checkbox" id="urgent_check" onchange="calculatePrice()" class="h-5 w-5 text-orange-500 rounded border-slate-300 focus:ring-orange-500 cursor-pointer">
-                    <label for="urgent_check" class="ml-3 block text-sm font-medium text-slate-700 cursor-pointer">Acil Kargo İster Misiniz? <span class="text-orange-500 font-bold">(+ $5.00)</span></label>
+                    <input type="checkbox" id="urgent_check" onchange="calculatePrice()" class="h-5 w-5 text-orange-500 rounded border-slate-300 cursor-pointer">
+                    <label for="urgent_check" class="ml-3 block text-sm font-medium text-slate-700 cursor-pointer">Ulaşması gereken zaman: <b class="text-orange-500">Acil Kargo (+ $5.00)</b> (İşaretlenmezse Esnek Zamanlı)</label>
                 </div>
 
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-1.5">Teslimat Seçeneği</label>
                     <select id="delivery_type" onchange="calculatePrice()" class="form-input text-slate-700 cursor-pointer">
                         <option value="0">📍 Havalimanında Locker'a Bırak ($0.00)</option>
-                        <option value="9">🏢 Kargo Şubesine Teslim (+ $9.00)</option>
+                        <option value="9">🏢 Herhangi bir Kargo Şubesine Teslim (+ $9.00)</option>
                         <option value="18">🏠 Adrese Tam Teslim (+ $18.00)</option>
                     </select>
                 </div>
             </div>
 
             <div class="mt-8 bg-gradient-to-br from-slate-900 to-slate-800 p-6 rounded-2xl text-center shadow-lg relative overflow-hidden">
-                <div class="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-white opacity-5 rounded-full blur-xl"></div>
                 <span class="block text-sm text-slate-300 mb-1 font-medium">Platform Provizyon Tutarı</span>
                 <span id="price_display" class="text-5xl font-extrabold text-white tracking-tight">$35.00</span>
+                <span class="block text-xs text-slate-400 mt-2">Bu tutar kartınızdan provizyon olarak çekilir. Teslimat onaylanana kadar havuzda (escrow) bekletilir.</span>
             </div>
 
-            <button type="submit" class="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold py-4 px-4 rounded-xl shadow-lg shadow-orange-500/30 transition-all duration-300 transform hover:-translate-y-1 text-lg mt-6 flex justify-center items-center">
-                <span>Öde ve İhaleyi Başlat</span>
-                <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+            <button type="submit" class="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold py-4 px-4 rounded-xl shadow-lg transition-all text-lg mt-6">
+                Öde ve İhaleyi Başlat
             </button>
         </form>
     </section>
 
     <script>
         let currentTotal = 35.00;
+
         function calculatePrice() {
             let kg = parseFloat(document.getElementById('kg_input').value) || 0;
+            let typeCargo = document.getElementById('type_cargo').checked; // Numune/Kargo mu?
             let isUrgent = document.getElementById('urgent_check').checked;
             let deliveryFee = parseFloat(document.getElementById('delivery_type').value);
+
             let basePrice = kg * 1.75;
+            
+            if (typeCargo) basePrice += 20.00; // Sadece kargo gidiyorsa +$20
+            if (isUrgent) basePrice += 5.00;   // Acil kargo ise +$5
+
             currentTotal = basePrice + deliveryFee;
-            if (isUrgent) currentTotal += 5.00;
             document.getElementById('price_display').innerText = "$" + currentTotal.toFixed(2);
         }
+
         window.onload = calculatePrice;
+
         document.getElementById('shipmentForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            
             const btn = e.target.querySelector('button[type="submit"]');
-            btn.innerHTML = '<span class="animate-pulse">İşleniyor...</span>';
-            btn.disabled = true;
+            btn.innerHTML = 'İşleniyor...'; btn.disabled = true;
+
             const payload = {
                 sender_name: document.getElementById('sender_name').value,
                 contact: document.getElementById('contact').value,
+                shipment_type: document.getElementById('type_cargo').checked ? 'cargo_only' : 'extra_baggage',
+                dimensions: document.getElementById('dimensions').value,
                 from_city: document.getElementById('from_city').value,
                 to_city: document.getElementById('to_city').value,
                 kg: parseFloat(document.getElementById('kg_input').value),
                 calculated_price: currentTotal
             };
+
             try {
                 const response = await fetch('/api/create_shipment', {
                     method: 'POST',
@@ -135,7 +177,7 @@
                 });
                 const result = await response.json();
                 const notif = document.getElementById('notification');
-                notif.classList.remove('hidden', 'bg-red-50', 'text-red-600', 'border-red-200');
+                notif.classList.remove('hidden', 'bg-red-50', 'text-red-600');
                 
                 if (result.status === 'success') {
                     notif.classList.add('bg-green-50', 'text-green-700', 'border', 'border-green-200');
@@ -144,10 +186,9 @@
                     calculatePrice();
                 }
             } catch (error) {
-                console.error("API Hatası:", error);
+                console.error(error);
             } finally {
-                btn.innerHTML = '<span>Öde ve İhaleyi Başlat</span><svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>';
-                btn.disabled = false;
+                btn.innerHTML = 'Öde ve İhaleyi Başlat'; btn.disabled = false;
             }
         });
     </script>
