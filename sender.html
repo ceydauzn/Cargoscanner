@@ -135,23 +135,50 @@
 
     <script>
         let currentTotal = 35.00;
+        let base64Photo = ""; // Fotoğrafı tutacağımız değişken
+
+        // Kullanıcı giriş yapmamışsa at, yapmışsa bilgilerini forma doldur
+        window.onload = function() {
+            const userStr = localStorage.getItem('cargo_user');
+            if (!userStr) {
+                alert("Kargo göndermek için giriş yapmalısınız!");
+                window.location.href = '/auth';
+                return;
+            }
+            const user = JSON.parse(userStr);
+            // Formu otomatik doldur ve kilitli (değiştirilemez) yap
+            document.getElementById('sender_name').value = user.name;
+            document.getElementById('sender_name').disabled = true;
+            document.getElementById('sender_name').classList.add('bg-slate-100', 'text-slate-500');
+            
+            document.getElementById('contact').value = user.email + " / " + user.phone;
+            document.getElementById('contact').disabled = true;
+            document.getElementById('contact').classList.add('bg-slate-100', 'text-slate-500');
+
+            calculatePrice();
+        };
+
+        // Fotoğrafı hızlıca metin (Base64) formatına çeviren kod
+        document.getElementById('photo_input').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const reader = new FileReader();
+            reader.onloadend = () => { base64Photo = reader.result; };
+            if(file) reader.readAsDataURL(file);
+        });
 
         function calculatePrice() {
             let kg = parseFloat(document.getElementById('kg_input').value) || 0;
-            let typeCargo = document.getElementById('type_cargo').checked; // Numune/Kargo mu?
+            let typeCargo = document.getElementById('type_cargo').checked;
             let isUrgent = document.getElementById('urgent_check').checked;
             let deliveryFee = parseFloat(document.getElementById('delivery_type').value);
 
             let basePrice = kg * 1.75;
-            
-            if (typeCargo) basePrice += 20.00; // Sadece kargo gidiyorsa +$20
-            if (isUrgent) basePrice += 5.00;   // Acil kargo ise +$5
+            if (typeCargo) basePrice += 20.00; 
+            if (isUrgent) basePrice += 5.00;   
 
             currentTotal = basePrice + deliveryFee;
             document.getElementById('price_display').innerText = "$" + currentTotal.toFixed(2);
         }
-
-        window.onload = calculatePrice;
 
         document.getElementById('shipmentForm').addEventListener('submit', async function(e) {
             e.preventDefault();
@@ -166,7 +193,8 @@
                 from_city: document.getElementById('from_city').value,
                 to_city: document.getElementById('to_city').value,
                 kg: parseFloat(document.getElementById('kg_input').value),
-                calculated_price: currentTotal
+                calculated_price: currentTotal,
+                photo: base64Photo // Fotoğrafı API'ye gönderiyoruz
             };
 
             try {
@@ -183,6 +211,7 @@
                     notif.classList.add('bg-green-50', 'text-green-700', 'border', 'border-green-200');
                     notif.innerHTML = `🎉 <b>Harika!</b> ${result.message}<br><span class="text-xs text-slate-500 mt-1 block">Takip Kodunuz: #${result.data.shipment_id}</span>`;
                     document.getElementById('shipmentForm').reset();
+                    base64Photo = ""; // Fotoğrafı sıfırla
                     calculatePrice();
                 }
             } catch (error) {
