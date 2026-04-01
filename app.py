@@ -11,16 +11,18 @@ try:
     cred = credentials.Certificate("firebase_key.json")
     firebase_admin.initialize_app(cred)
     db = firestore.client()
-    print("🔥 Firebase bağlantısı BAŞARILI!")
 except Exception as e:
     print(f"❌ Firebase bağlantı hatası: {e}")
 
-app = FastAPI(title="BaggageMatch API")
+app = FastAPI(title="Cargo Scanner API")
 templates = Jinja2Templates(directory="templates")
 
+# Güncellenmiş Veri Modeli
 class ShipmentRequest(BaseModel):
     sender_name: str
     contact: str
+    shipment_type: str  # 'extra_baggage' veya 'cargo_only'
+    dimensions: str
     from_city: str
     to_city: str
     kg: float
@@ -35,7 +37,10 @@ class BidRequest(BaseModel):
 async def read_root(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
-# YENİ EKLENEN KISIM: Taşıyıcı Vitrinini Açan Kod
+@app.get("/sender", response_class=HTMLResponse)
+async def read_sender(request: Request):
+    return templates.TemplateResponse("sender.html", {"request": request})
+
 @app.get("/carrier", response_class=HTMLResponse)
 async def read_carrier(request: Request):
     return templates.TemplateResponse("carrier.html", {"request": request})
@@ -43,18 +48,27 @@ async def read_carrier(request: Request):
 @app.post("/api/create_shipment")
 async def create_shipment(shipment: ShipmentRequest):
     shipment_id = str(uuid.uuid4())[:8] 
+    
+    # İŞ MODELİ: %15 Komisyon Kesintisi
+    provision_amount = shipment.calculated_price
+    platform_commission = provision_amount * 0.15
+    carrier_max_bid = provision_amount - platform_commission 
+    
     new_shipment = {
         "shipment_id": shipment_id,
         "sender_name": shipment.sender_name,
         "contact": shipment.contact,
+        "type": "Numune/Kargo" if shipment.shipment_type == "cargo_only" else "Bagaj Fazlası",
+        "dimensions": shipment.dimensions,
         "route": f"{shipment.from_city} -> {shipment.to_city}",
         "kg": shipment.kg,
-        "base_price": shipment.calculated_price,
-        "current_bid": shipment.calculated_price,
+        "provision_paid": provision_amount, # Müşteriden çekilen asıl para (Örn: 35$)
+        "current_bid": round(carrier_max_bid, 2), # Taşıyıcıların gördüğü ihale başlangıç rakamı (Örn: 29.75$)
         "status": "waiting_for_bids"
     }
+    
     db.collection("shipments").document(shipment_id).set(new_shipment)
-    return JSONResponse(content={"status": "success", "message": "Provizyon alındı, ihale taşıyıcılara bildirildi!", "data": new_shipment})
+    return JSONResponse(content={"status": "success", "message": "Provizyon alındı! Taşıyıcılara bildirim gönderildi.", "data": new_shipment})
 
 @app.get("/api/shipments")
 async def get_shipments():
@@ -84,10 +98,11 @@ async def place_bid(bid: BidRequest):
         }
         db.collection("bids").add(new_bid)
         
-        new_price = current_bid - 1.0
+        # TERS İHALE: Her teklifte fiyat 1 dolar düşer (Aradaki fark sisteme kar yazar)
+        new_price = round(current_bid - 1.0, 2)
         doc_ref.update({"current_bid": new_price})
         
-        return JSONResponse(content={"status": "success", "message": f"Teklif başarılı! Kargonun yeni ihale fiyatı: ${new_price}", "new_price": new_price})
+        return JSONResponse(content={"status": "success", "message": f"Teklif başarılı! Yeni fiyat: ${new_price}", "new_price": new_price})
     except Exception as e:
         return JSONResponse(content={"status": "error", "message": str(e)})
 
