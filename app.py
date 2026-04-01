@@ -17,6 +17,7 @@ except Exception as e:
 app = FastAPI(title="Cargo Scanner API")
 templates = Jinja2Templates(directory="templates")
 
+# --- MODELLER ---
 class ShipmentRequest(BaseModel):
     sender_name: str
     contact: str
@@ -26,7 +27,7 @@ class ShipmentRequest(BaseModel):
     to_city: str
     kg: float
     calculated_price: float
-    photo: str = None  # YENİ: Fotoğraf verisi için eklendi
+    photo: str = None
 
 class BidRequest(BaseModel):
     shipment_id: str
@@ -43,6 +44,11 @@ class LoginRequest(BaseModel):
     email: str
     password: str
 
+# YENİ EKLENEN MODEL: Teslimat Onayı
+class DeliverRequest(BaseModel):
+    shipment_id: str
+
+# --- SAYFA ROTALARI ---
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
@@ -59,6 +65,13 @@ async def read_carrier(request: Request):
 async def read_auth(request: Request):
     return templates.TemplateResponse("auth.html", {"request": request})
 
+# YENİ SAYFA ROTASI: Siparişlerim
+@app.get("/orders", response_class=HTMLResponse)
+async def read_orders(request: Request):
+    return templates.TemplateResponse("orders.html", {"request": request})
+
+
+# --- İŞ MODELİ VE KARGO API ROTALARI ---
 @app.post("/api/create_shipment")
 async def create_shipment(shipment: ShipmentRequest):
     shipment_id = str(uuid.uuid4())[:8] 
@@ -74,7 +87,7 @@ async def create_shipment(shipment: ShipmentRequest):
         "dimensions": shipment.dimensions,
         "route": f"{shipment.from_city} -> {shipment.to_city}",
         "kg": shipment.kg,
-        "photo": shipment.photo, # YENİ: Fotoğraf veritabanına yazılıyor
+        "photo": shipment.photo, 
         "provision_paid": provision_amount, 
         "current_bid": round(carrier_max_bid, 2), 
         "status": "waiting_for_bids"
@@ -110,21 +123,39 @@ async def place_bid(bid: BidRequest):
             "bid_amount": current_bid
         }
         db.collection("bids").add(new_bid)
-        
         new_price = round(current_bid - 1.0, 2)
         doc_ref.update({"current_bid": new_price})
-        
         return JSONResponse(content={"status": "success", "message": f"Teklif başarılı! Yeni fiyat: ${new_price}", "new_price": new_price})
     except Exception as e:
         return JSONResponse(content={"status": "error", "message": str(e)})
 
+# YENİ API: Kullanıcının Kendi Siparişlerini Çekme
+@app.get("/api/my_shipments")
+async def get_my_shipments(email: str):
+    try:
+        docs = db.collection("shipments").where("contact", "==", email).stream()
+        my_shipments = [doc.to_dict() for doc in docs]
+        return JSONResponse(content={"status": "success", "data": my_shipments})
+    except Exception as e:
+        return JSONResponse(content={"status": "error", "message": str(e)})
+
+# YENİ API: Teslimat Onayı ve Paranın Serbest Bırakılması
+@app.post("/api/deliver")
+async def deliver_shipment(payload: DeliverRequest):
+    try:
+        doc_ref = db.collection("shipments").document(payload.shipment_id)
+        doc_ref.update({"status": "delivered"})
+        return JSONResponse(content={"status": "success", "message": "Teslimat başarıyla onaylandı! Platform komisyonu kesildi, kalan ödeme taşıyıcıya aktarılıyor."})
+    except Exception as e:
+        return JSONResponse(content={"status": "error", "message": str(e)})
+
+# --- AUTH API ---
 @app.post("/api/register")
 async def register_user(user: RegisterRequest):
     try:
         existing_users = db.collection("users").where("email", "==", user.email).stream()
         if len(list(existing_users)) > 0:
             return JSONResponse(content={"status": "error", "message": "Bu e-posta adresi zaten kayıtlı!"})
-            
         new_user = {"name": user.name, "email": user.email, "phone": user.phone, "password": user.password}
         db.collection("users").add(new_user)
         return JSONResponse(content={"status": "success", "message": "Hesap başarıyla oluşturuldu."})
@@ -136,10 +167,8 @@ async def login_user(user: LoginRequest):
     try:
         users_ref = db.collection("users").where("email", "==", user.email).where("password", "==", user.password).stream()
         user_list = [doc.to_dict() for doc in users_ref]
-        
         if len(user_list) == 0:
             return JSONResponse(content={"status": "error", "message": "E-posta veya şifre hatalı!"})
-            
         logged_in_user = user_list[0]
         logged_in_user.pop('password', None) 
         return JSONResponse(content={"status": "success", "message": "Giriş başarılı", "data": logged_in_user})
