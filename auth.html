@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cargo Scanner | Giriş Yap</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Poppins', sans-serif; background-color: #f8fafc; }
+        .form-input { width: 100%; border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 0.75rem 1rem; transition: all 0.3s ease; outline: none; background-color: #fdfdfd; }
+        .form-input:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
+        .glass-card { background: white; border-radius: 1.5rem; box-shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.05); border: 1px solid #f1f5f9; }
+        .tab-active { border-bottom: 2px solid #3b82f6; color: #3b82f6; font-weight: 700; }
+        .tab-inactive { color: #94a3b8; font-weight: 500; }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
+
+    <div class="w-full max-w-md glass-card overflow-hidden relative">
+        <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-blue-500 to-indigo-600"></div>
+        
+        <div class="p-8">
+            <div class="text-center mb-8">
+                <a href="/" class="inline-block text-2xl font-extrabold text-slate-800 mb-2">Cargo<span class="text-blue-600">Scanner</span></a>
+                <p class="text-sm text-slate-500">Hesabınıza giriş yapın veya aramıza katılın.</p>
+            </div>
+
+            <div class="flex border-b border-slate-200 mb-6">
+                <button id="tab-login" onclick="switchTab('login')" class="flex-1 pb-3 text-center tab-active transition">Giriş Yap</button>
+                <button id="tab-register" onclick="switchTab('register')" class="flex-1 pb-3 text-center tab-inactive hover:text-slate-700 transition">Kayıt Ol</button>
+            </div>
+
+            <form id="form-login" class="space-y-5" onsubmit="handleLogin(event)">
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">E-posta Adresi</label>
+                    <input type="email" id="login_email" class="form-input" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">Şifre</label>
+                    <input type="password" id="login_password" class="form-input" required>
+                </div>
+                <button type="submit" class="w-full bg-slate-900 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition-colors mt-2">Giriş Yap</button>
+            </form>
+
+            <form id="form-register" class="space-y-5 hidden" onsubmit="handleRegister(event)">
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">Adınız Soyadınız</label>
+                    <input type="text" id="reg_name" class="form-input" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">E-posta Adresi</label>
+                    <input type="email" id="reg_email" class="form-input" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">Telefon Numarası</label>
+                    <input type="tel" id="reg_phone" class="form-input" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">Şifre</label>
+                    <input type="password" id="reg_password" class="form-input" required>
+                </div>
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition-colors mt-2">Hesap Oluştur</button>
+            </form>
+            
+            <div id="auth-message" class="mt-4 text-center text-sm font-semibold hidden p-3 rounded-lg"></div>
+        </div>
+    </div>
+
+    <script>
+        function switchTab(tab) {
+            const btnLogin = document.getElementById('tab-login');
+            const btnRegister = document.getElementById('tab-register');
+            const formLogin = document.getElementById('form-login');
+            const formRegister = document.getElementById('form-register');
+            const msg = document.getElementById('auth-message');
+            
+            msg.classList.add('hidden'); // Hataları temizle
+
+            if (tab === 'login') {
+                btnLogin.className = 'flex-1 pb-3 text-center tab-active transition';
+                btnRegister.className = 'flex-1 pb-3 text-center tab-inactive hover:text-slate-700 transition';
+                formLogin.classList.remove('hidden');
+                formRegister.classList.add('hidden');
+            } else {
+                btnRegister.className = 'flex-1 pb-3 text-center tab-active transition';
+                btnLogin.className = 'flex-1 pb-3 text-center tab-inactive hover:text-slate-700 transition';
+                formRegister.classList.remove('hidden');
+                formLogin.classList.add('hidden');
+            }
+        }
+
+        function showMessage(text, isError) {
+            const msg = document.getElementById('auth-message');
+            msg.innerText = text;
+            msg.className = `mt-4 text-center text-sm font-semibold p-3 rounded-lg ${isError ? 'bg-red-50 text-red-600' : 'bg-green-50 text-green-700'}`;
+            msg.classList.remove('hidden');
+        }
+
+        async function handleRegister(e) {
+            e.preventDefault();
+            const payload = {
+                name: document.getElementById('reg_name').value,
+                email: document.getElementById('reg_email').value,
+                phone: document.getElementById('reg_phone').value,
+                password: document.getElementById('reg_password').value
+            };
+
+            try {
+                const response = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    showMessage("Kayıt başarılı! Giriş yapabilirsiniz.", false);
+                    setTimeout(() => switchTab('login'), 2000);
+                } else {
+                    showMessage(result.message, true);
+                }
+            } catch (error) {
+                showMessage("Bir bağlantı hatası oluştu.", true);
+            }
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const payload = {
+                email: document.getElementById('login_email').value,
+                password: document.getElementById('login_password').value
+            };
+
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    // Kullanıcı bilgilerini tarayıcının hafızasına kaydet (Sonraki sayfalarda kullanacağız)
+                    localStorage.setItem('cargo_user', JSON.stringify(result.data));
+                    showMessage("Giriş başarılı! Yönlendiriliyorsunuz...", false);
+                    setTimeout(() => window.location.href = "/", 1500); // Ana sayfaya gönder
+                } else {
+                    showMessage(result.message, true);
+                }
+            } catch (error) {
+                showMessage("Bir bağlantı hatası oluştu.", true);
+            }
+        }
+    </script>
+</body>
+</html>
