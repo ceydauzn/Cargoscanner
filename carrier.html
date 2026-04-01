@@ -48,6 +48,7 @@
                 const result = await response.json();
                 const container = document.getElementById('shipments-container');
                 container.innerHTML = '';
+
                 if (!result.data || result.data.length === 0) {
                     container.innerHTML = `
                         <div class="col-span-1 md:col-span-2 bg-white rounded-3xl p-12 text-center border border-dashed border-slate-300">
@@ -58,6 +59,7 @@
                     `;
                     return;
                 }
+
                 result.data.forEach(shipment => {
                     const card = document.createElement('div');
                     card.className = "glass-card p-6 flex flex-col justify-between relative overflow-hidden group";
@@ -81,6 +83,7 @@
                                 <span class="text-slate-800 font-bold">${shipment.kg} KG</span>
                             </div>
                         </div>
+
                         <div class="relative z-10 border-t border-slate-100 pt-5 flex items-end justify-between">
                             <div>
                                 <p class="text-xs text-slate-400 font-semibold uppercase tracking-wider mb-1">Taşıma Bedeli</p>
@@ -98,21 +101,30 @@
                 console.error("Yükleme hatası:", error);
             }
         }
+
         async function placeBid(shipmentId) {
-            const name = prompt("Taşıyıcı Adınız nedir?");
-            const contact = prompt("İletişim bilginiz (Tel/Mail)?");
-            if (!name || !contact) return;
+            // ARTIK PROMPT YOK, OTOMATİK VERİ ÇEKİYORUZ!
+            const userStr = localStorage.getItem('cargo_user');
+            if (!userStr) {
+                alert("Teklif verebilmek için giriş yapmalısınız!");
+                window.location.href = '/auth';
+                return;
+            }
+            const user = JSON.parse(userStr);
+
             const payload = {
                 shipment_id: shipmentId,
-                carrier_name: name,
-                carrier_contact: contact
+                carrier_name: user.name,
+                carrier_contact: user.phone
             };
+
             try {
                 const response = await fetch('/api/place_bid', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
+
                 const result = await response.json();
                 if (result.status === 'success') {
                     alert("🎉 Harika! " + result.message);
@@ -124,6 +136,7 @@
                 alert("Bağlantı hatası oluştu.");
             }
         }
+
         window.onload = loadShipments;
     </script>
 </body>
