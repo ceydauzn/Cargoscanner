@@ -93,11 +93,11 @@
             const authSection = document.getElementById('auth-section');
 
             if (userStr) {
-                // Kullanıcı giriş yapmış! İsmini göster ve Çıkış Yap butonu ekle
                 const user = JSON.parse(userStr);
                 authSection.innerHTML = `
                     <div class="flex items-center space-x-4">
                         <span class="text-slate-700 font-semibold text-sm">👋 Merhaba, ${user.name.split(' ')[0]}</span>
+                        <a href="/orders" class="text-blue-600 hover:text-blue-800 font-bold text-sm transition bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-100">📦 Siparişlerim</a>
                         <button onclick="logout()" class="text-red-500 hover:text-red-700 text-sm font-bold transition">Çıkış Yap</button>
                     </div>
                 `;
