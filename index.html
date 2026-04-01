@@ -3,94 +3,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> CargoScanner | Hoş Geldiniz</title>
+    <title>Cargo Scanner | Hoş Geldiniz</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Poppins', sans-serif; }
-        .bg-pattern {
-            background-color: #f8fafc;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%2364748b' fill-opacity='0.05'%3E%3Cpath opacity='.5' d='M96 95h4v1h-4v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15s'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-        }
-        .card-shadow {
-            box-shadow: 0 10px 40px -10px rgba(15, 23, 42, 0.1);
-        }
-        .card-active:hover {
-            box-shadow: 0 20px 60px -15px rgba(15, 23, 42, 0.15);
-        }
+        .bg-pattern { background-color: #f8fafc; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%2364748b' fill-opacity='0.05'%3E%3Cpath opacity='.5' d='M96 95h4v1h-4v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15s'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); }
+        .card-shadow { box-shadow: 0 10px 40px -10px rgba(15, 23, 42, 0.1); }
+        .card-active:hover { box-shadow: 0 20px 60px -15px rgba(15, 23, 42, 0.15); }
     </style>
 </head>
-<body class="bg-pattern flex items-center justify-center min-h-screen p-4 md:p-10">
+<body class="bg-pattern flex flex-col min-h-screen">
 
-    <div class="max-w-6xl w-full flex flex-col items-center">
-        
-        <div class="text-center mb-16 md:mb-20 max-w-3xl">
-            <div class="inline-flex items-center bg-blue-100 text-blue-700 text-sm font-semibold px-4 py-1.5 rounded-full mb-6 border border-blue-200 shadow-inner">
-                ✈️ Havacılık Paylaşım Ekonomisi
-            </div>
-            <h1 class="text-5xl md:text-6xl font-extrabold text-slate-950 mb-6 leading-tight track">
-                Cargo<span class="text-blue-600">Scanner</span>
-            </h1>
-            <p class="text-xl text-slate-700 leading-relaxed">
-                Boş bagaj kapasitesini değerlendir, uçuş maliyetini düşür veya kargonu en güvenli ve hızlı yoldan yarı fiyatına gönder.
-            </p>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-10 w-full max-w-5xl">
+    <nav class="w-full bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 md:px-10 py-4 flex justify-between items-center">
+            <a href="/" class="text-2xl font-extrabold text-slate-900 tracking-tight">Cargo<span class="text-blue-600">Scanner</span></a>
             
-            <a href="/sender" class="group block h-full">
-                <div class="bg-white rounded-3xl p-10 border border-slate-100 card-shadow card-active transition-all duration-300 transform group-hover:-translate-y-2 flex flex-col h-full relative overflow-hidden">
-                    <div class="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-amber-400 to-orange-500"></div>
-                    
-                    <div class="w-20 h-20 bg-amber-50 rounded-2xl flex items-center justify-center mb-8 border border-amber-100">
-                        <svg class="w-10 h-10 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
-                        
-                        </svg>
-                    </div>
-
-                    <h2 class="text-3xl font-bold text-slate-950 mb-4 tracking-tight">Kargo Gönder</h2>
-                    <p class="text-slate-600 text-lg leading-relaxed mb-10 flex-grow">
-                        Yüksek uçak kargo masraflarını unutun. Eşyanızı aynı rotaya uçan güvenilir yolcularla, yarı fiyatına ve inanılmaz hızlı gönderin.
-                    </p>
-                    
-                    <div class="inline-flex items-center justify-center w-full bg-slate-900 text-white font-semibold py-4 px-8 rounded-xl group-hover:bg-orange-600 transition duration-300 shadow-md">
-                        Müşteri Girişi
-                        <svg class="w-5 h-5 ml-2.5 transition-transform duration-300 transform group-hover:translate-x-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                    </div>
-                </div>
-            </a>
-
-            <a href="/carrier" class="group block h-full">
-                <div class="bg-white rounded-3xl p-10 border border-slate-100 card-shadow card-active transition-all duration-300 transform group-hover:-translate-y-2 flex flex-col h-full relative overflow-hidden">
-                    <div class="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-blue-400 to-indigo-600"></div>
-                    
-                    <div class="w-20 h-20 bg-blue-50 rounded-2xl flex items-center justify-center mb-8 border border-blue-100">
-                        <svg class="w-10 h-10 text-blue-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
-                        </svg>
-                    </div>
-
-                    <h2 class="text-3xl font-bold text-slate-950 mb-4 tracking-tight">Kargo Taşı</h2>
-                    <p class="text-slate-600 text-lg leading-relaxed mb-10 flex-grow">
-                        Uçuşunuzdaki boş bagaj hakkını paraya çevirin. Sadece onaylı kargoları taşıyarak uçak biletinizi bedavaya getirin veya ek gelir elde edin.
-                    </p>
-                    
-                    <div class="inline-flex items-center justify-center w-full bg-slate-900 text-white font-semibold py-4 px-8 rounded-xl group-hover:bg-blue-600 transition duration-300 shadow-md">
-                        Yolcu Girişi
-                        <svg class="w-5 h-5 ml-2.5 transition-transform duration-300 transform group-hover:translate-x-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                    </div>
-                </div>
-            </a>
-
+            <div id="auth-section">
+                <a href="/auth" class="bg-slate-900 hover:bg-blue-600 text-white text-sm font-semibold py-2 px-5 rounded-full transition-colors shadow-md">Giriş Yap / Kayıt Ol</a>
+            </div>
         </div>
+    </nav>
 
-        <div class="mt-20 text-center text-slate-500 text-sm">
-            © 2026 CargoScanner. Tüm hakları saklıdır.
+    <div class="flex-grow flex items-center justify-center p-4 md:p-10">
+        <div class="max-w-6xl w-full flex flex-col items-center">
+            
+            <div class="text-center mb-16 md:mb-20 max-w-3xl mt-10">
+                <div class="inline-flex items-center bg-blue-100 text-blue-700 text-sm font-semibold px-4 py-1.5 rounded-full mb-6 border border-blue-200 shadow-inner">
+                    ✈️ Havacılık Paylaşım Ekonomisi
+                </div>
+                <h1 class="text-5xl md:text-6xl font-extrabold text-slate-950 mb-6 leading-tight track">
+                    Cargo<span class="text-blue-600">Scanner</span>
+                </h1>
+                <p class="text-xl text-slate-700 leading-relaxed">
+                    Boş bagaj kapasitesini değerlendir, uçuş maliyetini düşür veya kargonu en güvenli ve hızlı yoldan yarı fiyatına gönder.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-10 w-full max-w-5xl">
+                
+                <a href="#" onclick="checkLoginAndRedirect('/sender')" class="group block h-full">
+                    <div class="bg-white rounded-3xl p-10 border border-slate-100 card-shadow card-active transition-all duration-300 transform group-hover:-translate-y-2 flex flex-col h-full relative overflow-hidden">
+                        <div class="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-amber-400 to-orange-500"></div>
+                        <div class="w-20 h-20 bg-amber-50 rounded-2xl flex items-center justify-center mb-8 border border-amber-100">
+                            <svg class="w-10 h-10 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+                        </div>
+                        <h2 class="text-3xl font-bold text-slate-950 mb-4 tracking-tight">Kargo Gönder</h2>
+                        <p class="text-slate-600 text-lg leading-relaxed mb-10 flex-grow">
+                            Yüksek uçak kargo masraflarını unutun. Eşyanızı aynı rotaya uçan güvenilir yolcularla, yarı fiyatına ve inanılmaz hızlı gönderin.
+                        </p>
+                        <div class="inline-flex items-center justify-center w-full bg-slate-900 text-white font-semibold py-4 px-8 rounded-xl group-hover:bg-orange-600 transition duration-300 shadow-md">
+                            Müşteri Girişi
+                            <svg class="w-5 h-5 ml-2.5 transition-transform duration-300 transform group-hover:translate-x-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                        </div>
+                    </div>
+                </a>
+
+                <a href="#" onclick="checkLoginAndRedirect('/carrier')" class="group block h-full">
+                    <div class="bg-white rounded-3xl p-10 border border-slate-100 card-shadow card-active transition-all duration-300 transform group-hover:-translate-y-2 flex flex-col h-full relative overflow-hidden">
+                        <div class="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-blue-400 to-indigo-600"></div>
+                        <div class="w-20 h-20 bg-blue-50 rounded-2xl flex items-center justify-center mb-8 border border-blue-100">
+                            <svg class="w-10 h-10 text-blue-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+                        </div>
+                        <h2 class="text-3xl font-bold text-slate-950 mb-4 tracking-tight">Kargo Taşı</h2>
+                        <p class="text-slate-600 text-lg leading-relaxed mb-10 flex-grow">
+                            Uçuşunuzdaki boş bagaj hakkını paraya çevirin. Sadece onaylı kargoları taşıyarak uçak biletinizi bedavaya getirin veya ek gelir elde edin.
+                        </p>
+                        <div class="inline-flex items-center justify-center w-full bg-slate-900 text-white font-semibold py-4 px-8 rounded-xl group-hover:bg-blue-600 transition duration-300 shadow-md">
+                            Yolcu Girişi
+                            <svg class="w-5 h-5 ml-2.5 transition-transform duration-300 transform group-hover:translate-x-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                        </div>
+                    </div>
+                </a>
+
+            </div>
+            
+            <div class="mt-20 text-center text-slate-500 text-sm pb-10">
+                © 2026 Cargo Scanner. Tüm hakları saklıdır.
+            </div>
         </div>
     </div>
 
+    <script>
+        // Sayfa yüklendiğinde kullanıcının giriş yapıp yapmadığını kontrol et
+        document.addEventListener("DOMContentLoaded", () => {
+            const userStr = localStorage.getItem('cargo_user');
+            const authSection = document.getElementById('auth-section');
+
+            if (userStr) {
+                // Kullanıcı giriş yapmış! İsmini göster ve Çıkış Yap butonu ekle
+                const user = JSON.parse(userStr);
+                authSection.innerHTML = `
+                    <div class="flex items-center space-x-4">
+                        <span class="text-slate-700 font-semibold text-sm">👋 Merhaba, ${user.name.split(' ')[0]}</span>
+                        <button onclick="logout()" class="text-red-500 hover:text-red-700 text-sm font-bold transition">Çıkış Yap</button>
+                    </div>
+                `;
+            }
+        });
+
+        // Kargo Gönder veya Taşıyıcı kartlarına tıklandığında kontrol et
+        function checkLoginAndRedirect(url) {
+            const userStr = localStorage.getItem('cargo_user');
+            if (!userStr) {
+                // Giriş yapmamışsa uyar ve Auth sayfasına yönlendir
+                alert("İşlem yapabilmek için önce giriş yapmalısınız!");
+                window.location.href = "/auth";
+            } else {
+                // Giriş yapmışsa gitmek istediği sayfaya gönder
+                window.location.href = url;
+            }
+        }
+
+        // Çıkış Yap fonksiyonu
+        function logout() {
+            localStorage.removeItem('cargo_user');
+            window.location.reload();
+        }
+    </script>
 </body>
 </html>
