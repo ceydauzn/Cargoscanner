@@ -94,9 +94,16 @@
 
             if (userStr) {
                 const user = JSON.parse(userStr);
+                
+                // GİZLİ ADMIN KONTROLÜ: Sadece bu mail ile girilirse Admin butonu çıkar!
+                const adminButton = (user.email === 'admin@cargoscanner.com' || user.email === 'ceydauzn@gmail.com') 
+                    ? `<a href="/admin" class="text-amber-600 hover:text-amber-800 font-bold text-sm transition bg-amber-50 px-3 py-1.5 rounded-lg border border-amber-200">👑 Admin Paneli</a>` 
+                    : '';
+
                 authSection.innerHTML = `
                     <div class="flex items-center space-x-4">
                         <span class="text-slate-700 font-semibold text-sm">👋 Merhaba, ${user.name.split(' ')[0]}</span>
+                        ${adminButton}
                         <a href="/orders" class="text-blue-600 hover:text-blue-800 font-bold text-sm transition bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-100">📦 Siparişlerim</a>
                         <button onclick="logout()" class="text-red-500 hover:text-red-700 text-sm font-bold transition">Çıkış Yap</button>
                     </div>

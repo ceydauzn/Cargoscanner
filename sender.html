@@ -80,32 +80,48 @@
                 </div>
                 
                 <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">Kargo İçeriği Fotoğrafı (Güvenlik İçin)</label>
-                    <input type="file" id="photo_input" accept="image/*" class="form-input text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100 cursor-pointer">
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Kargo İçeriği Fotoğrafı (Güvenlik İçin)</label>
+                    <input type="file" id="photo_input" accept="image/png, image/jpeg, image/jpg" class="w-full text-sm text-slate-500 file:mr-4 file:py-3 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100 border border-slate-200 rounded-xl bg-white cursor-pointer">
+                    <p class="text-xs text-slate-400 mt-2">Sadece JPG, PNG formatları. Maksimum 5MB.</p>
+                    
+                    <div id="photo_preview_container" class="hidden mt-4">
+                        <p class="text-xs font-bold text-slate-500 mb-1">Seçilen Görsel:</p>
+                        <img id="photo_preview" src="" class="h-32 w-auto object-cover rounded-lg border border-slate-300 shadow-sm">
+                    </div>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-5 relative">
-                <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">Nereden?</label>
-                    <select id="from_city" class="form-input text-slate-700 cursor-pointer">
-                        <option value="IST">🇹🇷 İstanbul (IST)</option>
-                    </select>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">Nereden (Ülke / Şehir)</label>
+                        <div class="flex gap-2">
+                            <select id="from_country" onchange="updateCities('from')" class="w-1/2 p-3 border border-slate-200 rounded-xl outline-none focus:border-orange-500 bg-white">
+                                <option value="">Ülke Seç...</option>
+                            </select>
+                            <select id="from_city" class="w-1/2 p-3 border border-slate-200 rounded-xl outline-none focus:border-orange-500 bg-white disabled:opacity-50 disabled:bg-slate-100" disabled required>
+                                <option value="">Önce Ülke</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">Nereye (Ülke / Şehir)</label>
+                        <div class="flex gap-2">
+                            <select id="to_country" onchange="updateCities('to')" class="w-1/2 p-3 border border-slate-200 rounded-xl outline-none focus:border-orange-500 bg-white">
+                                <option value="">Ülke Seç...</option>
+                            </select>
+                            <select id="to_city" class="w-1/2 p-3 border border-slate-200 rounded-xl outline-none focus:border-orange-500 bg-white disabled:opacity-50 disabled:bg-slate-100" disabled required>
+                                <option value="">Önce Ülke</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
-                <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">Nereye?</label>
-                    <select id="to_city" class="form-input text-slate-700 cursor-pointer">
-                        <option value="BER">🇩🇪 Berlin (BER)</option>
-                        <option value="MUC">🇩🇪 Münih (MUC)</option>
-                    </select>
-                </div>
-                <div class="md:col-span-2 bg-blue-50 text-blue-800 text-xs p-3 rounded-lg flex items-start border border-blue-100">
+                <div class="md:col-span-2 bg-orange-50 text-orange-800 text-xs p-3 rounded-lg flex items-start border border-orange-100">
                     <svg class="w-5 h-5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                     <p><b>Önemli Not:</b> Taşıyıcı ile eşleşirken uçuşunuzun direkt mi yoksa aktarmalı mı olduğuna dikkat ediniz. Aktarmalı uçuşlarda bagaj son noktaya kadar sistemde kalabilir.</p>
                 </div>
             </div>
 
-            <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100 space-y-4">
+            <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100 space-y-4 mt-6">
                 <div class="flex items-center bg-white p-3 rounded-xl border border-slate-200">
                     <input type="checkbox" id="urgent_check" onchange="calculatePrice()" class="h-5 w-5 text-orange-500 rounded border-slate-300 cursor-pointer">
                     <label for="urgent_check" class="ml-3 block text-sm font-medium text-slate-700 cursor-pointer">Ulaşması gereken zaman: <b class="text-orange-500">Acil Kargo (+ $5.00)</b> (İşaretlenmezse Esnek Zamanlı)</label>
@@ -135,9 +151,41 @@
 
     <script>
         let currentTotal = 35.00;
-        let base64Photo = ""; // Fotoğrafı tutacağımız değişken
+        let base64Photo = ""; 
 
-        // Kullanıcı giriş yapmamışsa at, yapmışsa bilgilerini forma doldur
+        // ÜLKE VE ŞEHİR VERİTABANI
+        const locationData = {
+            "Türkiye": ["İstanbul (IST)", "İstanbul (SAW)", "Ankara (ESB)", "İzmir (ADB)", "Antalya (AYT)"],
+            "Almanya": ["Berlin (BER)", "Frankfurt (FRA)", "Münih (MUC)", "Köln (CGN)"],
+            "ABD": ["New York (JFK)", "Los Angeles (LAX)", "Chicago (ORD)", "Miami (MIA)"],
+            "İngiltere": ["Londra (LHR)", "Londra (LGW)", "Manchester (MAN)"],
+            "Fransa": ["Paris (CDG)", "Paris (ORY)", "Lyon (LYS)"]
+        };
+
+        // Sayfa yüklenirken ülkeleri menüye doldur
+        window.addEventListener('DOMContentLoaded', () => {
+            const countries = Object.keys(locationData);
+            countries.forEach(c => {
+                document.getElementById('from_country').add(new Option(c, c));
+                document.getElementById('to_country').add(new Option(c, c));
+            });
+        });
+
+        // Ülke seçilince o ülkenin şehirlerini açan fonksiyon
+        function updateCities(type) {
+            const country = document.getElementById(type + '_country').value;
+            const citySelect = document.getElementById(type + '_city');
+            citySelect.innerHTML = '<option value="">Şehir Seç...</option>';
+            
+            if (country) {
+                locationData[country].forEach(city => citySelect.add(new Option(city, city)));
+                citySelect.disabled = false;
+            } else {
+                citySelect.disabled = true;
+            }
+        }
+
+        // Kullanıcı yetki kontrolü ve form doldurma
         window.onload = function() {
             const userStr = localStorage.getItem('cargo_user');
             if (!userStr) {
@@ -146,7 +194,6 @@
                 return;
             }
             const user = JSON.parse(userStr);
-            // Formu otomatik doldur ve kilitli (değiştirilemez) yap
             document.getElementById('sender_name').value = user.name;
             document.getElementById('sender_name').disabled = true;
             document.getElementById('sender_name').classList.add('bg-slate-100', 'text-slate-500');
@@ -158,12 +205,43 @@
             calculatePrice();
         };
 
-        // Fotoğrafı hızlıca metin (Base64) formatına çeviren kod
+        // GÜVENLİ FOTOĞRAF KORUMASI VE CANLI ÖNİZLEME YÜKLEMESİ
         document.getElementById('photo_input').addEventListener('change', function(e) {
             const file = e.target.files[0];
+            const previewContainer = document.getElementById('photo_preview_container');
+            const previewImg = document.getElementById('photo_preview');
+
+            // 1. Seçim iptal edildiyse
+            if (!file) {
+                previewContainer.classList.add('hidden');
+                base64Photo = "";
+                return;
+            }
+
+            // 2. Format kontrolü (Sadece Resim)
+            if (!file.type.startsWith('image/')) {
+                alert("Güvenlik Uyarısı: Lütfen sadece resim formatında (JPG, PNG) bir dosya seçin!");
+                e.target.value = ""; 
+                previewContainer.classList.add('hidden');
+                return;
+            }
+
+            // 3. Boyut kontrolü (Maksimum 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                alert("Dosya boyutu çok yüksek! Lütfen 5MB'dan küçük bir fotoğraf seçin.");
+                e.target.value = ""; 
+                previewContainer.classList.add('hidden');
+                return;
+            }
+
+            // 4. Base64 Dönüşümü ve Ekranda Önizleme
             const reader = new FileReader();
-            reader.onloadend = () => { base64Photo = reader.result; };
-            if(file) reader.readAsDataURL(file);
+            reader.onloadend = () => { 
+                base64Photo = reader.result; 
+                previewImg.src = base64Photo;
+                previewContainer.classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
         });
 
         function calculatePrice() {
@@ -190,11 +268,11 @@
                 contact: document.getElementById('contact').value,
                 shipment_type: document.getElementById('type_cargo').checked ? 'cargo_only' : 'extra_baggage',
                 dimensions: document.getElementById('dimensions').value,
-                from_city: document.getElementById('from_city').value,
-                to_city: document.getElementById('to_city').value,
+                from_city: document.getElementById('from_city').value, // Seçilen şehir API'ye gidiyor
+                to_city: document.getElementById('to_city').value,     // Seçilen şehir API'ye gidiyor
                 kg: parseFloat(document.getElementById('kg_input').value),
                 calculated_price: currentTotal,
-                photo: base64Photo // Fotoğrafı API'ye gönderiyoruz
+                photo: base64Photo 
             };
 
             try {
@@ -210,8 +288,13 @@
                 if (result.status === 'success') {
                     notif.classList.add('bg-green-50', 'text-green-700', 'border', 'border-green-200');
                     notif.innerHTML = `🎉 <b>Harika!</b> ${result.message}<br><span class="text-xs text-slate-500 mt-1 block">Takip Kodunuz: #${result.data.shipment_id}</span>`;
+                    
+                    // Formu sıfırla ve fotoğraf önizlemesini kapat
                     document.getElementById('shipmentForm').reset();
-                    base64Photo = ""; // Fotoğrafı sıfırla
+                    base64Photo = ""; 
+                    document.getElementById('photo_preview_container').classList.add('hidden');
+                    document.getElementById('from_city').disabled = true;
+                    document.getElementById('to_city').disabled = true;
                     calculatePrice();
                 }
             } catch (error) {
