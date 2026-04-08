@@ -44,8 +44,10 @@ class LoginRequest(BaseModel):
     email: str
     password: str
 
+# YENİ EKLENEN MODEL: Güvenlik Onaylı Teslimat
 class DeliverRequest(BaseModel):
     shipment_id: str
+    user_email: str  # GÜVENLİK İÇİN EKLENDİ: İsteği atan kim?
 
 # YENİ EKLENEN MODEL: Admin Durum Güncellemesi İçin
 class UpdateStatusRequest(BaseModel):
