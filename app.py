@@ -125,6 +125,11 @@ async def place_bid(bid: BidRequest):
             return JSONResponse(content={"status": "error", "message": "Kargo bulunamadı!"})
             
         shipment_data = doc.to_dict()
+        
+        # GÜVENLİK YAMASI: Kargo zaten alınmış mı?
+        if shipment_data.get("status") != "waiting_for_bids":
+            return JSONResponse(content={"status": "error", "message": "Üzgünüz, bu kargo saniyeler önce başka bir taşıyıcı tarafından alındı!"})
+        
         current_bid = float(shipment_data.get("current_bid", 0))
         
         new_bid = {
@@ -134,9 +139,15 @@ async def place_bid(bid: BidRequest):
             "bid_amount": current_bid
         }
         db.collection("bids").add(new_bid)
-        new_price = round(current_bid - 1.0, 2)
-        doc_ref.update({"current_bid": new_price})
-        return JSONResponse(content={"status": "success", "message": f"Teklif başarılı! Yeni fiyat: ${new_price}", "new_price": new_price})
+        
+        # MANTIK YAMASI: Kargo ilk tıklayana kilitlenir ve taşıyıcı sisteme kaydedilir.
+        doc_ref.update({
+            "status": "carrier_received", 
+            "carrier_name": bid.carrier_name,
+            "carrier_contact": bid.carrier_contact
+        })
+        
+        return JSONResponse(content={"status": "success", "message": "Tebrikler! Kargo size atandı. Teslimat sürecini başlatabilirsiniz."})
     except Exception as e:
         return JSONResponse(content={"status": "error", "message": str(e)})
 
