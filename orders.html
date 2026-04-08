@@ -71,13 +71,33 @@
             });
         };
 
-        async function confirmDelivery(shipmentId) {
+       async function confirmDelivery(shipmentId) {
             if(!confirm("Kargonun elinize ulaştığını onaylıyor musunuz?")) return;
-            await fetch('/api/update_status', {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ shipment_id: shipmentId, new_status: "delivered" })
-            });
-            window.location.reload();
+            
+            // GÜVENLİK YAMASI: İsteği atan kişinin e-postasını API'ye kanıt olarak sun
+            const userStr = localStorage.getItem('cargo_user');
+            const user = JSON.parse(userStr);
+
+            try {
+                const response = await fetch('/api/deliver', {
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        shipment_id: shipmentId, 
+                        user_email: user.email // Kullanıcı e-postası eklendi!
+                    })
+                });
+                const result = await response.json();
+                
+                if(result.status === 'success') {
+                    alert("🎉 " + result.message);
+                    window.location.reload();
+                } else {
+                    alert("Güvenlik Uyarısı: " + result.message);
+                }
+            } catch (error) {
+                alert("Bağlantı hatası.");
+            }
         }
     </script>
 </body>
