@@ -11,9 +11,10 @@
         .form-input { width: 100%; border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 0.75rem 1rem; transition: all 0.3s ease; outline: none; background-color: #fdfdfd; }
         .form-input:focus { border-color: #f97316; box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1); }
         .glass-card { background: white; border-radius: 1.5rem; box-shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.05); border: 1px solid #f1f5f9; }
+        .modal-overlay { background-color: rgba(15, 23, 42, 0.75); backdrop-filter: blur(4px); }
     </style>
 </head>
-<body class="flex flex-col items-center min-h-screen py-10 px-4">
+<body class="flex flex-col items-center min-h-screen py-10 px-4 relative">
 
     <div class="w-full max-w-2xl flex justify-between items-center mb-8">
         <a href="/" class="flex items-center text-slate-500 hover:text-orange-500 transition font-medium">
@@ -71,7 +72,6 @@
                     <div>
                         <label class="block text-sm font-semibold text-slate-700 mb-1.5">Kargo Ağırlığı (KG)</label>
                         <input type="number" id="kg_input" value="20" min="1" max="50" oninput="calculatePrice()" class="form-input font-bold text-lg text-slate-800" required>
-                        <span class="text-xs text-slate-400 mt-1 block">Fiyatlandırma: KG başı $1.75</span>
                     </div>
                     <div>
                         <label class="block text-sm font-semibold text-slate-700 mb-1.5">Boyutlar (En x Boy x Yükseklik)</label>
@@ -81,9 +81,8 @@
                 
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Kargo İçeriği Fotoğrafı (Güvenlik İçin)</label>
-                    <input type="file" id="photo_input" accept="image/png, image/jpeg, image/jpg" class="w-full text-sm text-slate-500 file:mr-4 file:py-3 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100 border border-slate-200 rounded-xl bg-white cursor-pointer">
+                    <input type="file" id="photo_input" accept="image/png, image/jpeg, image/jpg" class="w-full text-sm text-slate-500 file:mr-4 file:py-3 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100 border border-slate-200 rounded-xl bg-white cursor-pointer" required>
                     <p class="text-xs text-slate-400 mt-2">Sadece JPG, PNG formatları. Maksimum 5MB.</p>
-                    
                     <div id="photo_preview_container" class="hidden mt-4">
                         <p class="text-xs font-bold text-slate-500 mb-1">Seçilen Görsel:</p>
                         <img id="photo_preview" src="" class="h-32 w-auto object-cover rounded-lg border border-slate-300 shadow-sm">
@@ -92,32 +91,27 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <label class="block text-sm font-semibold text-slate-700 mb-2">Nereden (Ülke / Şehir)</label>
-                        <div class="flex gap-2">
-                            <select id="from_country" onchange="updateCities('from')" class="w-1/2 p-3 border border-slate-200 rounded-xl outline-none focus:border-orange-500 bg-white">
-                                <option value="">Ülke Seç...</option>
-                            </select>
-                            <select id="from_city" class="w-1/2 p-3 border border-slate-200 rounded-xl outline-none focus:border-orange-500 bg-white disabled:opacity-50 disabled:bg-slate-100" disabled required>
-                                <option value="">Önce Ülke</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-semibold text-slate-700 mb-2">Nereye (Ülke / Şehir)</label>
-                        <div class="flex gap-2">
-                            <select id="to_country" onchange="updateCities('to')" class="w-1/2 p-3 border border-slate-200 rounded-xl outline-none focus:border-orange-500 bg-white">
-                                <option value="">Ülke Seç...</option>
-                            </select>
-                            <select id="to_city" class="w-1/2 p-3 border border-slate-200 rounded-xl outline-none focus:border-orange-500 bg-white disabled:opacity-50 disabled:bg-slate-100" disabled required>
-                                <option value="">Önce Ülke</option>
-                            </select>
-                        </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Nereden (Ülke / Şehir)</label>
+                    <div class="flex gap-2">
+                        <select id="from_country" onchange="updateCities('from'); calculatePrice();" class="w-1/2 p-3 border border-slate-200 rounded-xl outline-none focus:border-orange-500 bg-white" required>
+                            <option value="">Ülke Seç...</option>
+                        </select>
+                        <select id="from_city" class="w-1/2 p-3 border border-slate-200 rounded-xl outline-none focus:border-orange-500 bg-white disabled:opacity-50 disabled:bg-slate-100" disabled required>
+                            <option value="">Önce Ülke</option>
+                        </select>
                     </div>
                 </div>
-                <div class="md:col-span-2 bg-orange-50 text-orange-800 text-xs p-3 rounded-lg flex items-start border border-orange-100">
-                    <svg class="w-5 h-5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    <p><b>Önemli Not:</b> Taşıyıcı ile eşleşirken uçuşunuzun direkt mi yoksa aktarmalı mı olduğuna dikkat ediniz. Aktarmalı uçuşlarda bagaj son noktaya kadar sistemde kalabilir.</p>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Nereye (Ülke / Şehir)</label>
+                    <div class="flex gap-2">
+                        <select id="to_country" onchange="updateCities('to'); calculatePrice();" class="w-1/2 p-3 border border-slate-200 rounded-xl outline-none focus:border-orange-500 bg-white" required>
+                            <option value="">Ülke Seç...</option>
+                        </select>
+                        <select id="to_city" class="w-1/2 p-3 border border-slate-200 rounded-xl outline-none focus:border-orange-500 bg-white disabled:opacity-50 disabled:bg-slate-100" disabled required>
+                            <option value="">Önce Ülke</option>
+                        </select>
+                    </div>
                 </div>
             </div>
 
@@ -126,7 +120,6 @@
                     <input type="checkbox" id="urgent_check" onchange="calculatePrice()" class="h-5 w-5 text-orange-500 rounded border-slate-300 cursor-pointer">
                     <label for="urgent_check" class="ml-3 block text-sm font-medium text-slate-700 cursor-pointer">Ulaşması gereken zaman: <b class="text-orange-500">Acil Kargo (+ $5.00)</b> (İşaretlenmezse Esnek Zamanlı)</label>
                 </div>
-
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-1.5">Teslimat Seçeneği</label>
                     <select id="delivery_type" onchange="calculatePrice()" class="form-input text-slate-700 cursor-pointer">
@@ -138,19 +131,67 @@
             </div>
 
             <div class="mt-8 bg-gradient-to-br from-slate-900 to-slate-800 p-6 rounded-2xl text-center shadow-lg relative overflow-hidden">
-                <span class="block text-sm text-slate-300 mb-1 font-medium">Platform Provizyon Tutarı</span>
-                <span id="price_display" class="text-5xl font-extrabold text-white tracking-tight">$35.00</span>
-                <span class="block text-xs text-slate-400 mt-2">Bu tutar kartınızdan provizyon olarak çekilir. Teslimat onaylanana kadar havuzda (escrow) bekletilir.</span>
+                <span class="block text-sm text-slate-300 mb-1 font-medium">Toplam Provizyon Tutarı</span>
+                <span id="price_display" class="text-5xl font-extrabold text-emerald-400 tracking-tight">$0.00</span>
+                <span id="route_info" class="block text-xs text-orange-400 font-bold mt-2 uppercase tracking-widest hidden">Uluslararası Uçuş</span>
             </div>
 
             <button type="submit" class="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold py-4 px-4 rounded-xl shadow-lg transition-all text-lg mt-6">
-                Öde ve İhaleyi Başlat
+                Güvenli Ödeme Adımına Geç
             </button>
         </form>
     </section>
 
+    <div id="paymentModal" class="fixed inset-0 modal-overlay z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl transform transition-all">
+            <div class="bg-slate-900 p-6 text-center relative">
+                <button onclick="closeModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white transition">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+                <h3 class="text-xl font-bold text-white mb-1">Güvenli Ödeme</h3>
+                <p class="text-sm text-slate-400">Escrow Havuzuna Provizyon Aktarımı</p>
+            </div>
+            
+            <form id="paymentForm" class="p-6 space-y-4">
+                <div class="bg-blue-50 border border-blue-100 p-4 rounded-xl text-center mb-6">
+                    <span class="text-sm text-blue-800 font-semibold block">Çekilecek Tutar</span>
+                    <span id="modal_price_display" class="text-3xl font-black text-blue-900">$0.00</span>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">Kart Üzerindeki İsim</label>
+                    <input type="text" class="form-input" placeholder="AD SOYAD" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">Kart Numarası</label>
+                    <input type="text" class="form-input tracking-widest font-mono" placeholder="0000 0000 0000 0000" maxlength="19" required>
+                </div>
+                <div class="flex gap-4">
+                    <div class="flex-1">
+                        <label class="block text-sm font-semibold text-slate-700 mb-1.5">Son Kul. (AA/YY)</label>
+                        <input type="text" class="form-input font-mono" placeholder="MM/YY" maxlength="5" required>
+                    </div>
+                    <div class="flex-1">
+                        <label class="block text-sm font-semibold text-slate-700 mb-1.5">CVC</label>
+                        <input type="text" class="form-input font-mono" placeholder="123" maxlength="3" required>
+                    </div>
+                </div>
+
+                <div class="flex items-center text-xs text-slate-500 mt-4 mb-2">
+                    <svg class="w-4 h-4 mr-1 text-emerald-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"></path></svg>
+                    256-bit SSL şifreleme ile korunmaktadır. Ödemeniz kargo teslim edilene kadar havuzda güvendedir.
+                </div>
+
+                <button type="submit" id="payButton" class="w-full bg-slate-900 hover:bg-blue-600 text-white font-bold py-4 px-4 rounded-xl shadow-lg transition-colors mt-2 flex items-center justify-center">
+                    <span id="payBtnText">Ödemeyi Tamamla ve İhaleyi Başlat</span>
+                    <svg id="paySpinner" class="animate-spin ml-2 h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                </button>
+            </form>
+        </div>
+    </div>
+
     <script>
-        let currentTotal = 35.00;
+        let currentTotal = 0.00;
         let base64Photo = ""; 
 
         // ÜLKE VE ŞEHİR VERİTABANI
@@ -162,7 +203,15 @@
             "Fransa": ["Paris (CDG)", "Paris (ORY)", "Lyon (LYS)"]
         };
 
-        // Sayfa yüklenirken ülkeleri menüye doldur
+        // ROTA / MESAFE FİYAT ÇARPANLARI ZEKASI
+        const routeMultipliers = {
+            "Türkiye-Türkiye": 0.5, // Yurtiçi ucuz
+            "Türkiye-Almanya": 1.5, "Almanya-Türkiye": 1.5,
+            "Türkiye-Fransa": 1.6, "Fransa-Türkiye": 1.6,
+            "Türkiye-İngiltere": 1.8, "İngiltere-Türkiye": 1.8,
+            "Türkiye-ABD": 3.0, "ABD-Türkiye": 3.0 // Uzak mesafe pahalı
+        };
+
         window.addEventListener('DOMContentLoaded', () => {
             const countries = Object.keys(locationData);
             countries.forEach(c => {
@@ -171,7 +220,6 @@
             });
         });
 
-        // Ülke seçilince o ülkenin şehirlerini açan fonksiyon
         function updateCities(type) {
             const country = document.getElementById(type + '_country').value;
             const citySelect = document.getElementById(type + '_city');
@@ -185,7 +233,6 @@
             }
         }
 
-        // Kullanıcı yetki kontrolü ve form doldurma
         window.onload = function() {
             const userStr = localStorage.getItem('cargo_user');
             if (!userStr) {
@@ -196,45 +243,22 @@
             const user = JSON.parse(userStr);
             document.getElementById('sender_name').value = user.name;
             document.getElementById('sender_name').disabled = true;
-            document.getElementById('sender_name').classList.add('bg-slate-100', 'text-slate-500');
             
             document.getElementById('contact').value = user.email + " / " + user.phone;
             document.getElementById('contact').disabled = true;
-            document.getElementById('contact').classList.add('bg-slate-100', 'text-slate-500');
 
             calculatePrice();
         };
 
-        // GÜVENLİ FOTOĞRAF KORUMASI VE CANLI ÖNİZLEME YÜKLEMESİ
         document.getElementById('photo_input').addEventListener('change', function(e) {
             const file = e.target.files[0];
             const previewContainer = document.getElementById('photo_preview_container');
             const previewImg = document.getElementById('photo_preview');
 
-            // 1. Seçim iptal edildiyse
-            if (!file) {
-                previewContainer.classList.add('hidden');
-                base64Photo = "";
-                return;
-            }
+            if (!file) { previewContainer.classList.add('hidden'); base64Photo = ""; return; }
+            if (!file.type.startsWith('image/')) { alert("Sadece resim!"); e.target.value = ""; return; }
+            if (file.size > 5 * 1024 * 1024) { alert("Maksimum 5MB!"); e.target.value = ""; return; }
 
-            // 2. Format kontrolü (Sadece Resim)
-            if (!file.type.startsWith('image/')) {
-                alert("Güvenlik Uyarısı: Lütfen sadece resim formatında (JPG, PNG) bir dosya seçin!");
-                e.target.value = ""; 
-                previewContainer.classList.add('hidden');
-                return;
-            }
-
-            // 3. Boyut kontrolü (Maksimum 5MB)
-            if (file.size > 5 * 1024 * 1024) {
-                alert("Dosya boyutu çok yüksek! Lütfen 5MB'dan küçük bir fotoğraf seçin.");
-                e.target.value = ""; 
-                previewContainer.classList.add('hidden');
-                return;
-            }
-
-            // 4. Base64 Dönüşümü ve Ekranda Önizleme
             const reader = new FileReader();
             reader.onloadend = () => { 
                 base64Photo = reader.result; 
@@ -244,64 +268,113 @@
             reader.readAsDataURL(file);
         });
 
+        // AKILLI FİYAT HESAPLAMA (MESAFE BAZLI)
         function calculatePrice() {
             let kg = parseFloat(document.getElementById('kg_input').value) || 0;
             let typeCargo = document.getElementById('type_cargo').checked;
             let isUrgent = document.getElementById('urgent_check').checked;
             let deliveryFee = parseFloat(document.getElementById('delivery_type').value);
+            
+            let fromCountry = document.getElementById('from_country').value;
+            let toCountry = document.getElementById('to_country').value;
 
-            let basePrice = kg * 1.75;
+            // Çarpanı bul (Varsayılan 1.0)
+            let multiplier = 1.0;
+            let routeInfo = document.getElementById('route_info');
+            
+            if(fromCountry && toCountry) {
+                let routeKey = fromCountry + "-" + toCountry;
+                multiplier = routeMultipliers[routeKey] || 2.0; // Bilinmeyen dış hat ise 2.0 katı
+                
+                routeInfo.classList.remove('hidden');
+                if(multiplier === 0.5) routeInfo.innerText = "Yurtiçi Uçuş İndirimi Uygulandı";
+                else if (multiplier >= 2.0) routeInfo.innerText = "Kıtalararası Uçuş Fiyatlandırması";
+                else routeInfo.innerText = "Uluslararası Avrupa Uçuşu";
+            } else {
+                routeInfo.classList.add('hidden');
+            }
+
+            // Taban fiyat: (KG * $1.75) * Mesafe Çarpanı
+            let basePrice = (kg * 1.75) * multiplier;
             if (typeCargo) basePrice += 20.00; 
             if (isUrgent) basePrice += 5.00;   
 
             currentTotal = basePrice + deliveryFee;
             document.getElementById('price_display').innerText = "$" + currentTotal.toFixed(2);
+            document.getElementById('modal_price_display').innerText = "$" + currentTotal.toFixed(2);
         }
 
-        document.getElementById('shipmentForm').addEventListener('submit', async function(e) {
+        // 1. AŞAMA: ANA FORM GÖNDERİLİNCE DİREKT API'YE GİTME, ÖDEME EKRANINI AÇ
+        document.getElementById('shipmentForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            const btn = e.target.querySelector('button[type="submit"]');
-            btn.innerHTML = 'İşleniyor...'; btn.disabled = true;
+            document.getElementById('paymentModal').classList.remove('hidden');
+        });
 
-            const payload = {
-                sender_name: document.getElementById('sender_name').value,
-                contact: document.getElementById('contact').value,
-                shipment_type: document.getElementById('type_cargo').checked ? 'cargo_only' : 'extra_baggage',
-                dimensions: document.getElementById('dimensions').value,
-                from_city: document.getElementById('from_city').value, // Seçilen şehir API'ye gidiyor
-                to_city: document.getElementById('to_city').value,     // Seçilen şehir API'ye gidiyor
-                kg: parseFloat(document.getElementById('kg_input').value),
-                calculated_price: currentTotal,
-                photo: base64Photo 
-            };
+        // Modal Kapatma
+        function closeModal() {
+            document.getElementById('paymentModal').classList.add('hidden');
+        }
 
-            try {
-                const response = await fetch('/api/create_shipment', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                const result = await response.json();
-                const notif = document.getElementById('notification');
-                notif.classList.remove('hidden', 'bg-red-50', 'text-red-600');
-                
-                if (result.status === 'success') {
-                    notif.classList.add('bg-green-50', 'text-green-700', 'border', 'border-green-200');
-                    notif.innerHTML = `🎉 <b>Harika!</b> ${result.message}<br><span class="text-xs text-slate-500 mt-1 block">Takip Kodunuz: #${result.data.shipment_id}</span>`;
+        // 2. AŞAMA: ÖDEME EKRANI DOLDURULUNCA SİMÜLASYON YAP VE API'Yİ ÇAĞIR
+        document.getElementById('paymentForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const btnText = document.getElementById('payBtnText');
+            const spinner = document.getElementById('paySpinner');
+            const payBtn = document.getElementById('payButton');
+            
+            // Yükleniyor animasyonunu başlat
+            btnText.innerText = "Ödeme Alınıyor...";
+            spinner.classList.remove('hidden');
+            payBtn.disabled = true;
+
+            // 1.5 saniyelik sahte ödeme bekleme süresi (Mükemmel UX)
+            setTimeout(async () => {
+                const payload = {
+                    sender_name: document.getElementById('sender_name').value,
+                    contact: document.getElementById('contact').value,
+                    shipment_type: document.getElementById('type_cargo').checked ? 'cargo_only' : 'extra_baggage',
+                    dimensions: document.getElementById('dimensions').value,
+                    from_city: document.getElementById('from_city').value,
+                    to_city: document.getElementById('to_city').value,
+                    kg: parseFloat(document.getElementById('kg_input').value),
+                    calculated_price: currentTotal,
+                    photo: base64Photo 
+                };
+
+                try {
+                    const response = await fetch('/api/create_shipment', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    const result = await response.json();
                     
-                    // Formu sıfırla ve fotoğraf önizlemesini kapat
-                    document.getElementById('shipmentForm').reset();
-                    base64Photo = ""; 
-                    document.getElementById('photo_preview_container').classList.add('hidden');
-                    document.getElementById('from_city').disabled = true;
-                    document.getElementById('to_city').disabled = true;
-                    calculatePrice();
+                    closeModal(); // Ödeme ekranını kapat
+                    
+                    const notif = document.getElementById('notification');
+                    notif.classList.remove('hidden', 'bg-red-50', 'text-red-600');
+                    
+                    if (result.status === 'success') {
+                        notif.classList.add('bg-green-50', 'text-green-700', 'border', 'border-green-200');
+                        notif.innerHTML = `🎉 <b>Ödeme Başarılı!</b> ${result.message}<br><span class="text-xs text-slate-500 mt-1 block">Takip Kodunuz: #${result.data.shipment_id}</span>`;
+                        
+                        document.getElementById('shipmentForm').reset();
+                        base64Photo = ""; 
+                        document.getElementById('photo_preview_container').classList.add('hidden');
+                        document.getElementById('from_city').disabled = true;
+                        document.getElementById('to_city').disabled = true;
+                        calculatePrice();
+                    }
+                } catch (error) {
+                    alert("Ödeme sırasında bir hata oluştu.");
+                } finally {
+                    // Butonu eski haline getir
+                    btnText.innerText = "Ödemeyi Tamamla ve İhaleyi Başlat";
+                    spinner.classList.add('hidden');
+                    payBtn.disabled = false;
                 }
-            } catch (error) {
-                console.error(error);
-            } finally {
-                btn.innerHTML = 'Öde ve İhaleyi Başlat'; btn.disabled = false;
-            }
+            }, 1500); // 1.5 saniye simülasyon
         });
     </script>
 </body>
