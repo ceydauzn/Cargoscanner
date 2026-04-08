@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Cargo Scanner | Yönetici Paneli</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>body { font-family: 'Poppins', sans-serif; background-color: #0f172a; color: #f8fafc; }</style>
+</head>
+<body class="min-h-screen p-6 md:p-10">
+    <div class="max-w-7xl mx-auto">
+        <div class="flex justify-between items-center mb-10 border-b border-slate-800 pb-6">
+            <h1 class="text-3xl font-extrabold tracking-tight">Cargo<span class="text-blue-500">Scanner</span> <span class="text-slate-500 font-medium">| Yönetici Paneli</span></h1>
+            <a href="/" class="text-slate-400 hover:text-white transition">Ana Sayfaya Dön</a>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
+            <div class="bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-xl">
+                <p class="text-slate-400 text-sm font-semibold uppercase tracking-wider mb-2">Toplam İşlem Hacmi</p>
+                <p class="text-4xl font-black text-white" id="kpi-volume">$0.00</p>
+            </div>
+            <div class="bg-gradient-to-br from-emerald-900 to-slate-800 p-6 rounded-2xl border border-emerald-700 shadow-xl relative overflow-hidden">
+                <p class="text-emerald-400 text-sm font-semibold uppercase tracking-wider mb-2 relative z-10">Platform Net Kârı</p>
+                <p class="text-4xl font-black text-white relative z-10" id="kpi-profit">$0.00</p>
+            </div>
+            <div class="bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-xl">
+                <p class="text-slate-400 text-sm font-semibold uppercase tracking-wider mb-2">Aktif Operasyonlar</p>
+                <p class="text-4xl font-black text-blue-400" id="kpi-active">0</p>
+            </div>
+            <div class="bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-xl">
+                <p class="text-slate-400 text-sm font-semibold uppercase tracking-wider mb-2">Tamamlanan Uçuşlar</p>
+                <p class="text-4xl font-black text-slate-300" id="kpi-completed">0</p>
+            </div>
+        </div>
+
+        <div class="bg-slate-800 rounded-2xl border border-slate-700 shadow-xl overflow-hidden">
+            <div class="p-6 border-b border-slate-700"><h2 class="text-xl font-bold text-white">Tüm Operasyonlar</h2></div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm text-slate-300">
+                    <thead class="bg-slate-900/50 text-slate-400 uppercase text-xs font-semibold">
+                        <tr>
+                            <th class="px-6 py-4">Kargo ID</th>
+                            <th class="px-6 py-4">Rota & Gönderici</th>
+                            <th class="px-6 py-4">Finans (Hacim / Kâr)</th>
+                            <th class="px-6 py-4">Güncel Durum</th>
+                            <th class="px-6 py-4 text-right">Aksiyon</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-table-body" class="divide-y divide-slate-700/50">
+                        <tr><td colspan="5" class="px-6 py-8 text-center text-slate-500 animate-pulse">Veriler yükleniyor...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const statusMap = {
+            'waiting_for_bids': '⏳ İhalede',
+            'carrier_received': '📦 Taşıyıcıda',
+            'boarded': '🛫 Uçağa Bindi',
+            'in_flight': '✈️ Uçuş Halinde',
+            'landed': '🛬 İniş Yaptı',
+            'delivered': '✅ Teslim Edildi'
+        };
+
+        async function loadDashboard() {
+            try {
+                const res = await fetch('/api/dashboard_stats');
+                const result = await res.json();
+                const d = result.data;
+
+                document.getElementById('kpi-volume').innerText = '$' + d.total_volume.toFixed(2);
+                document.getElementById('kpi-profit').innerText = '$' + d.total_profit.toFixed(2);
+                document.getElementById('kpi-active').innerText = d.active_count;
+                document.getElementById('kpi-completed').innerText = d.completed_count;
+
+                const tbody = document.getElementById('admin-table-body');
+                tbody.innerHTML = '';
+
+                d.all_shipments.forEach(s => {
+                    const profit = (s.status !== 'waiting_for_bids') ? (s.provision_paid - s.current_bid).toFixed(2) : '0.00';
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-slate-700/30 transition">
+                            <td class="px-6 py-4 font-mono text-xs text-slate-400">#${s.shipment_id}</td>
+                            <td class="px-6 py-4 font-bold text-white">${s.route}<br><span class="text-xs text-slate-500 font-normal">${s.sender_name}</span></td>
+                            <td class="px-6 py-4"><span class="text-slate-300">$${s.provision_paid}</span> / <span class="text-emerald-400 font-bold">+$${profit}</span></td>
+                            <td class="px-6 py-4"><span class="bg-slate-900 px-3 py-1 rounded-full text-xs font-semibold border border-slate-600">${statusMap[s.status] || s.status}</span></td>
+                            <td class="px-6 py-4 text-right">
+                                <select onchange="updateStatus('${s.shipment_id}', this.value)" class="bg-slate-900 border border-slate-600 text-white text-xs rounded-lg px-2 py-1 outline-none">
+                                    <option value="" disabled selected>Durum Değiştir</option>
+                                    <option value="carrier_received">📦 Taşıyıcı Aldı</option>
+                                    <option value="boarded">🛫 Uçağa Bindi</option>
+                                    <option value="in_flight">✈️ Uçuş Halinde</option>
+                                    <option value="landed">🛬 İniş Yaptı</option>
+                                    <option value="delivered">✅ Teslim Edildi</option>
+                                </select>
+                            </td>
+                        </tr>
+                    `;
+                });
+            } catch (e) { console.error(e); }
+        }
+
+        async function updateStatus(id, newStatus) {
+            await fetch('/api/update_status', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ shipment_id: id, new_status: newStatus })
+            });
+            loadDashboard();
+        }
+
+        window.onload = loadDashboard;
+    </script>
+</body>
+</html>
