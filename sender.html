@@ -316,6 +316,7 @@
         }
 
         // 2. AŞAMA: ÖDEME EKRANI DOLDURULUNCA SİMÜLASYON YAP VE API'Yİ ÇAĞIR
+        // 2. AŞAMA: ÖDEME EKRANI DOLDURULUNCA SİMÜLASYON YAP VE API'Yİ ÇAĞIR
         document.getElementById('paymentForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
@@ -328,7 +329,6 @@
             spinner.classList.remove('hidden');
             payBtn.disabled = true;
 
-            // 1.5 saniyelik sahte ödeme bekleme süresi (Mükemmel UX)
             setTimeout(async () => {
                 const payload = {
                     sender_name: document.getElementById('sender_name').value,
@@ -348,14 +348,14 @@
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(payload)
                     });
+                    
                     const result = await response.json();
                     
-                    closeModal(); // Ödeme ekranını kapat
-                    
-                    const notif = document.getElementById('notification');
-                    notif.classList.remove('hidden', 'bg-red-50', 'text-red-600');
-                    
-                    if (result.status === 'success') {
+                    // Eğer API 200 Başarılı Döndüyse
+                    if (response.ok && result.status === 'success') {
+                        closeModal(); 
+                        const notif = document.getElementById('notification');
+                        notif.classList.remove('hidden', 'bg-red-50', 'text-red-600');
                         notif.classList.add('bg-green-50', 'text-green-700', 'border', 'border-green-200');
                         notif.innerHTML = `🎉 <b>Ödeme Başarılı!</b> ${result.message}<br><span class="text-xs text-slate-500 mt-1 block">Takip Kodunuz: #${result.data.shipment_id}</span>`;
                         
@@ -365,16 +365,21 @@
                         document.getElementById('from_city').disabled = true;
                         document.getElementById('to_city').disabled = true;
                         calculatePrice();
+                    } else {
+                        // BACKEND VERİYİ BEĞENMEDİYSE NEDENİNİ EKRANA BAS
+                        closeModal();
+                        alert("API Hatası (Arka Plan): " + (result.message || JSON.stringify(result)));
                     }
                 } catch (error) {
-                    alert("Ödeme sırasında bir hata oluştu.");
+                    // SUNUCU ÇÖKTÜYSE VEYA İNTERNET KOPTUYSA NEDENİNİ EKRANA BAS
+                    closeModal();
+                    alert("Kritik Sistem Hatası (Sunucu/Ağ): " + error.message);
                 } finally {
-                    // Butonu eski haline getir
                     btnText.innerText = "Ödemeyi Tamamla ve İhaleyi Başlat";
                     spinner.classList.add('hidden');
                     payBtn.disabled = false;
                 }
-            }, 1500); // 1.5 saniye simülasyon
+            }, 1500); 
         });
     </script>
 </body>
