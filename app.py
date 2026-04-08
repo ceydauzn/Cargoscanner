@@ -44,9 +44,14 @@ class LoginRequest(BaseModel):
     email: str
     password: str
 
-# YENİ EKLENEN MODEL: Teslimat Onayı
 class DeliverRequest(BaseModel):
     shipment_id: str
+
+# YENİ EKLENEN MODEL: Admin Durum Güncellemesi İçin
+class UpdateStatusRequest(BaseModel):
+    shipment_id: str
+    new_status: str
+
 
 # --- SAYFA ROTALARI ---
 @app.get("/", response_class=HTMLResponse)
@@ -65,10 +70,14 @@ async def read_carrier(request: Request):
 async def read_auth(request: Request):
     return templates.TemplateResponse("auth.html", {"request": request})
 
-# YENİ SAYFA ROTASI: Siparişlerim
 @app.get("/orders", response_class=HTMLResponse)
 async def read_orders(request: Request):
     return templates.TemplateResponse("orders.html", {"request": request})
+
+# YENİ SAYFA ROTASI: Yönetici (Admin) Paneli
+@app.get("/admin", response_class=HTMLResponse)
+async def read_admin(request: Request):
+    return templates.TemplateResponse("admin.html", {"request": request})
 
 
 # --- İŞ MODELİ VE KARGO API ROTALARI ---
@@ -129,7 +138,6 @@ async def place_bid(bid: BidRequest):
     except Exception as e:
         return JSONResponse(content={"status": "error", "message": str(e)})
 
-# YENİ API: Kullanıcının Kendi Siparişlerini Çekme
 @app.get("/api/my_shipments")
 async def get_my_shipments(email: str):
     try:
@@ -139,7 +147,6 @@ async def get_my_shipments(email: str):
     except Exception as e:
         return JSONResponse(content={"status": "error", "message": str(e)})
 
-# YENİ API: Teslimat Onayı ve Paranın Serbest Bırakılması
 @app.post("/api/deliver")
 async def deliver_shipment(payload: DeliverRequest):
     try:
@@ -148,6 +155,57 @@ async def deliver_shipment(payload: DeliverRequest):
         return JSONResponse(content={"status": "success", "message": "Teslimat başarıyla onaylandı! Platform komisyonu kesildi, kalan ödeme taşıyıcıya aktarılıyor."})
     except Exception as e:
         return JSONResponse(content={"status": "error", "message": str(e)})
+
+# YENİ API: Admin İçin Manuel Durum Güncelleme
+@app.post("/api/update_status")
+async def update_status(payload: UpdateStatusRequest):
+    try:
+        db.collection("shipments").document(payload.shipment_id).update({"status": payload.new_status})
+        return JSONResponse(content={"status": "success", "message": "Kargo durumu güncellendi!"})
+    except Exception as e:
+        return JSONResponse(content={"status": "error", "message": str(e)})
+
+# YENİ API: Admin Dashboard Verilerini Çekme (Ciro ve Kâr Hesaplaması)
+@app.get("/api/dashboard_stats")
+async def get_dashboard_stats():
+    try:
+        docs = db.collection("shipments").stream()
+        shipments = [doc.to_dict() for doc in docs]
+
+        total_volume = 0
+        total_profit = 0
+        active_count = 0
+        completed_count = 0
+
+        for s in shipments:
+            provision = float(s.get("provision_paid", 0))
+            final_bid = float(s.get("current_bid", 0))
+            status = s.get("status", "waiting_for_bids")
+
+            total_volume += provision
+            
+            # Kâr: Müşteriden çekilen (provision) - Taşıyıcıya verilen (final_bid)
+            if status != "waiting_for_bids":
+                total_profit += (provision - final_bid)
+
+            if status == "delivered":
+                completed_count += 1
+            else:
+                active_count += 1
+
+        return JSONResponse(content={
+            "status": "success",
+            "data": {
+                "total_volume": round(total_volume, 2),
+                "total_profit": round(total_profit, 2),
+                "active_count": active_count,
+                "completed_count": completed_count,
+                "all_shipments": shipments
+            }
+        })
+    except Exception as e:
+        return JSONResponse(content={"status": "error", "message": str(e)})
+
 
 # --- AUTH API ---
 @app.post("/api/register")
